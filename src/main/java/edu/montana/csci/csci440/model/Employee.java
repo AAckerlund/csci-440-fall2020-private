@@ -2,6 +2,7 @@ package edu.montana.csci.csci440.model;
 
 import edu.montana.csci.csci440.util.DB;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public class Employee extends Model {
 
-    private Integer employeeId;
+    private long employeeId;
     private String firstName;
     private String lastName;
     private String email;
@@ -22,12 +23,135 @@ public class Employee extends Model {
         firstName = results.getString("FirstName");
         lastName = results.getString("LastName");
         email = results.getString("Email");
+        employeeId = results.getLong("EmployeeId");
+    }
+
+    public static List<Employee.SalesSummary> getSalesSummaries() {
+        //TODO - a GROUP BY query to determine the sales, using the SalesSummary class
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean verify() {
+        if (firstName == null || "".equals(firstName)) {
+            addError("FirstName can't be null or blank!");
+        }
+        if (lastName == null || "".equals(lastName)) {
+            addError("LastName can't be null!");
+        }
+        return !hasErrors();
+    }
+
+    @Override
+    public boolean update() {
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "UPDATE employees SET FirstName=?, LastName=?, Email=? WHERE EmployeeId=?")) {
+                stmt.setString(1, this.getFirstName());
+                stmt.setString(2, this.getLastName());
+                stmt.setString(3, this.getEmail());
+                stmt.setLong(4, this.getEmployeeId());
+                stmt.executeUpdate();
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean create() {
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "INSERT INTO employees (FirstName, LastName, Email) VALUES (?, ?, ?)")) {
+                stmt.setString(1, this.getFirstName());
+                stmt.setString(2, this.getLastName());
+                stmt.setString(3, this.getEmail());
+                stmt.executeUpdate();
+                employeeId = DB.getLastID(conn);
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void delete() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM employees WHERE EmployeeID=?")) {
+            stmt.setLong(1, this.getEmployeeId());
+            stmt.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public long getEmployeeId() {
+        return employeeId;
+    }
+
+    public List<Customer> getCustomers() {
+        return Customer.forEmployee(employeeId);
+    }
+
+    public List<Employee> getReports() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM employees WHERE ReportsTo=?"
+             )) {
+            stmt.setLong(1, this.getEmployeeId());
+            ResultSet results = stmt.executeQuery();
+            List<Employee> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Employee(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+    public Employee getBoss() {
+        return null;
+    }
+
+    public static List<Employee> all() {
+        return all(0, Integer.MAX_VALUE);
     }
 
     public static List<Employee> all(int page, int count) {
         try (Connection conn = DB.connect();
-             Statement stmt = conn.createStatement()) {
-            ResultSet results = stmt.executeQuery("SELECT * FROM employees");
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM employees LIMIT ?"
+             )) {
+            stmt.setInt(1, count);
+            ResultSet results = stmt.executeQuery();
             List<Employee> resultList = new LinkedList<>();
             while (results.next()) {
                 resultList.add(new Employee(results));
@@ -42,44 +166,53 @@ public class Employee extends Model {
         throw new UnsupportedOperationException("Implement me");
     }
 
-    public String getFirstName() {
-        return firstName;
+    public static Employee find(long employeeId) {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM employees WHERE EmployeeId=?")) {
+            stmt.setLong(1, employeeId);
+            ResultSet results = stmt.executeQuery();
+            if (results.next()) {
+                return new Employee(results);
+            } else {
+                return null;
+            }
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    public static class SalesSummary {
+        String firstName;
+        String lastName;
+        String email;
+        Long salesCount;
+        BigDecimal salesTotals;
+        private SalesSummary(ResultSet results) throws SQLException {
+            firstName = results.getString("FirstName");
+            lastName = results.getString("LastName");
+            email = results.getString("Email");
+            salesCount = results.getLong("SalesCount");
+            salesTotals = results.getBigDecimal("SalesTotal");
+        }
 
-    public String getLastName() {
-        return lastName;
-    }
+        public String getFirstName() {
+            return firstName;
+        }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+        public String getLastName() {
+            return lastName;
+        }
 
-    public String getEmail() {
-        return email;
-    }
+        public String getEmail() {
+            return email;
+        }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+        public Long getSalesCount() {
+            return salesCount;
+        }
 
-    public Integer getEmployeeId() {
-        return employeeId;
+        public BigDecimal getSalesTotals() {
+            return salesTotals;
+        }
     }
-
-    public List<Customer> getCustomers() {
-        return Collections.emptyList();
-    }
-
-    public List<Employee> getReports() {
-        return Collections.emptyList();
-    }
-
-    public Employee getBoss() {
-        return null;
-    }
-
 }
