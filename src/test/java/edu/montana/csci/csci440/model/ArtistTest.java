@@ -12,15 +12,15 @@ public class ArtistTest extends DBTest {
     @Test
     void testAllLoadsAllArtists() {
         List<Artist> all = Artist.all();
-        assertEquals(347, all.size());
+        assertEquals(275, all.size());
     }
 
     @Test
     void testPagingWorks() {
         assertEquals(100, Artist.all(1, 100).size());
         assertEquals(100, Artist.all(2, 100).size());
-        assertEquals(100, Artist.all(3, 100).size());
-        assertEquals(47, Artist.all(4, 100).size());
+        assertEquals(75, Artist.all(3, 100).size());
+        assertEquals(0, Artist.all(4, 100).size());
         assertEquals(0, Artist.all(5, 100).size());
     }
 
