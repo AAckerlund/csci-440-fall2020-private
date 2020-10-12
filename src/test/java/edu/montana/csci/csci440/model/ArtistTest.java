@@ -38,6 +38,21 @@ public class ArtistTest extends DBTest {
     }
 
     @Test
+    void testOptimisticConcurrencyIsImplemented() {
+        Artist acdc1 = Artist.find(1);
+        Artist acdc2 = Artist.find(1);
+        String newName = "DC/AC";
+
+        acdc1.setName(newName);
+        assertTrue(acdc1.update());
+        assertEquals(newName, Artist.find(1).getName());
+
+        // should fail, since a row w/ name "AC/DC" can't be found
+        acdc2.setName("C3P0");
+        assertFalse(acdc2.update());
+    }
+
+    @Test
     void testValidationWorks() {
         Artist Artist = new Artist();
 
