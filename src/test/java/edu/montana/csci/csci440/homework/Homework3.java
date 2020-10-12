@@ -16,7 +16,16 @@ public class Homework3 extends DBTest {
      */
     public void createTracksPlusView(){
         //TODO fill this in
-        executeDDL("CREATE VIEW tracksPlus");
+        executeDDL("CREATE VIEW tracksPlus AS SELECT " +
+                "tracks.TrackId," +
+                "artists.Name AS ArtistName," +
+                "tracks.Name AS TrackName," +
+                "albums.Title AS AlbumTitle," +
+                "Genres.Name AS GenreName " +
+                "FROM tracks " +
+                "JOIN genres ON tracks.GenreId=genres.GenreId " +
+                "JOIN albums ON albums.AlbumId=tracks.AlbumId " +
+                "Join artists ON artists.ArtistId=albums.ArtistId");
 
         List<Map<String, Object>> results = executeSQL("SELECT * FROM tracksPlus ORDER BY TrackId");
         assertEquals(3503, results.size());
@@ -36,8 +45,20 @@ public class Homework3 extends DBTest {
      */
     public void createGrammyInfoTable(){
         //TODO fill these in
-        executeDDL("create table grammy_categories");
-        executeDDL("create table grammy_infos");
+        executeDDL("create table grammy_categories (" +
+                "GrammyCategoryId INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "Name String NOT NULL" +
+                ")");
+        executeDDL("create table grammy_infos (" +
+                "ArtistId INTEGER NOT NULL," +
+                "AlbumId INTEGER," +
+                "TrackId INTEGER," +
+                "GrammyCategoryId INTEGER," +
+                "Status String NOT NULL," +
+                "PRIMARY KEY (ArtistId), " +
+                "FOREIGN KEY (GrammyCategoryId) " +
+                "REFERENCES grammy_categories(GrammyCategoryId)" +
+                ")");
 
         // TEST CODE
         executeUpdate("INSERT INTO grammy_categories(Name) VALUES ('Greatest Ever');");
@@ -61,7 +82,10 @@ public class Homework3 extends DBTest {
         Integer before = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
 
         //TODO fill this in
-        executeUpdate("INSERT");
+        for(int i = 0; i < 5; i++)
+        {
+            executeUpdate("INSERT INTO genres(Name) VALUES ('Genre" + i + "');");
+        }
 
         Integer after = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
         assertEquals(before + 5, after);
