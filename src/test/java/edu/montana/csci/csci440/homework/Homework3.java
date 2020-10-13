@@ -15,7 +15,6 @@ public class Homework3 extends DBTest {
      * Create a view tracksPlus to display the artist, song title, album, and genre for all tracks per playlist.
      */
     public void createTracksPlusView(){
-        //TODO fill this in
         executeDDL("CREATE VIEW tracksPlus AS SELECT " +
                 "tracks.TrackId," +
                 "artists.Name AS ArtistName," +
@@ -44,7 +43,6 @@ public class Homework3 extends DBTest {
      * Create a table grammy_category
      */
     public void createGrammyInfoTable(){
-        //TODO fill these in
         executeDDL("create table grammy_categories (" +
                 "GrammyCategoryId INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "Name String NOT NULL" +
@@ -81,7 +79,6 @@ public class Homework3 extends DBTest {
     public void bulkInsertGenres(){
         Integer before = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
 
-        //TODO fill this in
         for(int i = 0; i < 5; i++)
         {
             executeUpdate("INSERT INTO genres(Name) VALUES ('Genre" + i + "');");
