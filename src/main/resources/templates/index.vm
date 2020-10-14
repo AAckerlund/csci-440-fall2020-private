@@ -11,7 +11,7 @@
 <h4>Artists</h4>
 <ul>
     <li>All CRUD operations</li>
-    <li>Implement Paging</li>
+    <li><del>Implement Paging</del></li>
     <li><code>Artist.verify()</code></li>
     <li>Show all albums on the artist details page, with links to their album</li>
 </ul>
@@ -19,7 +19,7 @@
 <h4>Albums</h4>
 <ul>
     <li>All CRUD operations</li>
-    <li>Implement Paging</li>
+    <li><del>Implement Paging</del></li>
     <li><code>Albums.verify()</code></li>
     <li>Show all tracks on the album details page, with links to the tracks</li>
 </ul>
@@ -38,13 +38,13 @@
 <h4>Playlists</h4>
 <ul>
     <li>Display only, both list and detail views</li>
-    <li>Detail view should show associated tracks, paged</li>
+    <li>Detail view should show associated tracks, <del>paged</del></li>
 </ul>
 
 <h4>Employees</h4>
 <ul>
     <li>All CRUD operations</li>
-    <li>Implement Paging</li>
+    <li><del>Implement Paging</del></li>
     <li><code>Employees.verify()</code></li>
     <li>Detail view should show boss, Reports and Customers (no paging)</li>
     <li>Employee Report 1: An employee tree (written inefficiently currently, optimize to issue only one query)</li>
@@ -55,13 +55,13 @@
 <h4>Customers</h4>
 <ul>
     <li>Display only, both list and detail views</li>
-    <li>Detail view should show associated invoices, paged</li>
+    <li>Detail view should show associated invoices, <del>paged</del></li>
 </ul>
 
 <h4>Invoices</h4>
 <ul>
     <li>Display only, both list and detail views</li>
-    <li>Detail view should show associated invoice items, paged</li>
+    <li>Detail view should show associated invoice items, <del>paged</del></li>
     <li>Invoice items should include track name, album name, artist name</li>
 </ul>
 
