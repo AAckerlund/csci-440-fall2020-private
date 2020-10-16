@@ -38,7 +38,19 @@ public class Album extends Model {
     }
 
     public Long getAlbumId() {
-        return albumId;
+        try(Connection conn = DB.connect();
+        PreparedStatement stmt = conn.prepareStatement("SELECT * from albums WHERE Title=?"))
+        {
+            stmt.setString(1, title);
+            ResultSet results = stmt.executeQuery();
+            if(results.isClosed())
+                return null;
+            return results.getLong("AlbumId");
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
     }
 
     public void setAlbum(Album album) {
@@ -98,5 +110,42 @@ public class Album extends Model {
         // TODO implement
         return Collections.emptyList();
     }
-
+    
+    public boolean create()
+    {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO albums(Title, ArtistId) VALUES(?, ?)")) {
+        stmt.setString(1, title);
+        stmt.setLong(2, artistId);
+        return stmt.execute();
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    public boolean update()
+    {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("UPDATE albums SET Title=? WHERE AlbumId=?")) {
+            stmt.setString(1, title);
+            stmt.setLong(2, albumId);
+            return stmt.execute();
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    public boolean verify()
+    {
+        this._errors = new LinkedList<>();
+        if(title == null || title.equals(""))
+            addError("No Title Found");
+        if(artistId == null || artistId < 0)
+            addError("Invalid Artist Id");
+        return !hasErrors();
+    }
 }
