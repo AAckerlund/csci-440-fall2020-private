@@ -11,9 +11,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static spark.Spark.*;
 
@@ -55,17 +53,19 @@ public class Web {
                 if (method.getParameterTypes()[0] == Integer.class || method.getParameterTypes()[0] == Integer.TYPE) {
                     int i = Integer.parseInt(req.queryParams(property));
                     method.invoke(obj, i);
-                }
-                if (method.getParameterTypes()[0] == Date.class) {
+                } else if (method.getParameterTypes()[0] == Long.class || method.getParameterTypes()[0] == Long.TYPE) {
+                    long i = Long.parseLong(req.queryParams(property));
+                    method.invoke(obj, i);
+                } else if (method.getParameterTypes()[0] == Date.class) {
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
                     Date date = formatter.parse(req.queryParams(property));
                     method.invoke(obj, date);
-                }
-                if (method.getParameterTypes()[0] == String.class) {
+                } else if (method.getParameterTypes()[0] == String.class) {
                     method.invoke(obj, req.queryParams(property));
-                }
-                if (method.getParameterTypes()[0] == BigDecimal.class) {
+                } else if (method.getParameterTypes()[0] == BigDecimal.class) {
                     method.invoke(obj, parseBigDecimal(req, property));
+                } else {
+                    throw new IllegalStateException("Do not know how to set value of type " + method.getParameterTypes()[0].getName());
                 }
             }
         } catch (Exception e) {
@@ -220,7 +220,7 @@ public class Web {
 
     public static void init() {
         before((request, response) -> {
-            System.out.println(">> REQUEST " + request.requestMethod() + " " + request.pathInfo());
+            System.out.println(">> REQUEST " + request.requestMethod() + " " + request.pathInfo() + getParameterInfo(request));
             Web.set(request, response, System.currentTimeMillis());
         });
         after((request, response) -> {
@@ -248,6 +248,26 @@ public class Web {
                     "error", e,
                     "stacktrace", sw.getBuffer().toString()));
         });
+    }
+
+    private static String getParameterInfo(Request request) {
+        Set<String> params = request.queryParams();
+        if (params.size() > 0) {
+            StringBuilder str = new StringBuilder("\n   Parameters: {");
+            Object[] paramsArr = params.toArray();
+            Arrays.sort(paramsArr);
+            for (int i = 0; i < paramsArr.length; i++) {
+                if (i != 0) {
+                    str.append(", ");
+                }
+                Object o = paramsArr[i];
+                str.append(o.toString()).append(":").append(getRequest().queryParams(o.toString()));
+            }
+            str.append("}");
+            return str.toString();
+        } else {
+            return "";
+        }
     }
 
     private static class RequestInfo {
