@@ -7,10 +7,12 @@ import java.sql.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Employee extends Model {
 
-    private Long employeeId;
+    private Long employeeId, reportsTo;
     private String firstName;
     private String lastName;
     private String email;
@@ -26,6 +28,7 @@ public class Employee extends Model {
         email = results.getString("Email");
         employeeId = results.getLong("EmployeeId");
         title = results.getString("Title");
+        reportsTo = results.getLong("ReportsTo");
     }
 
     public static List<Employee.SalesSummary> getSalesSummaries() {
@@ -41,6 +44,17 @@ public class Employee extends Model {
         }
         if (lastName == null || "".equals(lastName)) {
             addError("LastName can't be null!");
+        }
+        try
+        {
+            Pattern p = Pattern.compile("^\\S+@\\S+$", Pattern.CASE_INSENSITIVE);
+            Matcher match = p.matcher(email);//will throw an error if email = null
+            if("".equals(email) || !match.find())
+                addError("Invalid email address");
+        }
+        catch(NullPointerException ex)
+        {
+            addError("No email found");
         }
         return !hasErrors();
     }
@@ -70,10 +84,11 @@ public class Employee extends Model {
         if (verify()) {
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO employees (FirstName, LastName, Email) VALUES (?, ?, ?)")) {
+                         "INSERT INTO employees (FirstName, LastName, Email, ReportsTo) VALUES (?, ?, ?, ?)")) {
                 stmt.setString(1, this.getFirstName());
                 stmt.setString(2, this.getLastName());
                 stmt.setString(3, this.getEmail());
+                stmt.setLong(4, reportsTo);
                 stmt.executeUpdate();
                 employeeId = DB.getLastID(conn);
                 return true;
@@ -141,8 +156,21 @@ public class Employee extends Model {
         }
     }
     public Employee getBoss() {
-        //TODO implement
-        return null;
+        try(Connection conn = DB.connect();
+        PreparedStatement stmt = conn.prepareStatement("SELECT boss.* FROM employees JOIN employees boss on employees.ReportsTo=boss.EmployeeId WHERE employees.employeeId=?"))
+        {
+            stmt.setLong(1, employeeId);
+            ResultSet results = stmt.executeQuery();
+            if(results.isClosed())
+            {
+                return this;
+            }
+            return new Employee(results);
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
     }
 
     public static List<Employee> all() {
@@ -168,7 +196,18 @@ public class Employee extends Model {
     }
 
     public static Employee findByEmail(String newEmailAddress) {
-        throw new UnsupportedOperationException("Implement me");
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM employees WHERE Email=?")) {
+            stmt.setString(1, newEmailAddress);
+            ResultSet results = stmt.executeQuery();
+            if (results.next()) {
+                return new Employee(results);
+            } else {
+                return null;
+            }
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     public static Employee find(long employeeId) {
@@ -191,7 +230,7 @@ public class Employee extends Model {
     }
 
     public void setReportsTo(Employee employee) {
-        // TODO implement
+        reportsTo = employee.getEmployeeId();
     }
 
     public static class SalesSummary {
