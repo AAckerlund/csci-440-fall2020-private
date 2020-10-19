@@ -82,7 +82,24 @@ public class Track extends Model {
         return null;
     }
     public List<Playlist> getPlaylists(){
-        return Collections.emptyList();
+        try(Connection conn = DB.connect();
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM playlists " +
+                "JOIN playlist_track on playlist_track.PlaylistId=playlists.PlaylistId " +
+                "JOIN tracks on tracks.TrackId=playlist_track.TrackId " +
+                "WHERE tracks.TrackId=?"))
+        {
+            stmt.setLong(1, trackId);
+            ResultSet results = stmt.executeQuery();
+            List<Playlist> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Playlist(results));
+            }
+            return resultList;
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
     }
 
     public Long getTrackId() {
@@ -247,10 +264,11 @@ public class Track extends Model {
     public static List<Track> all(int page, int count, String orderBy) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM tracks LIMIT ? OFFSET ?"
+                     "SELECT * FROM tracks ORDER BY ? LIMIT ? OFFSET ? "
              )) {
-            stmt.setInt(1, count);
-            stmt.setInt(2, count*(page-1));
+            stmt.setString(1, orderBy);
+            stmt.setInt(2, count);
+            stmt.setInt(3, count*(page-1));
             ResultSet results = stmt.executeQuery();
             List<Track> resultList = new LinkedList<>();
             while (results.next()) {
@@ -261,5 +279,53 @@ public class Track extends Model {
             throw new RuntimeException(sqlException);
         }
     }
-
+    
+    @Override
+    public boolean create()
+    {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO Tracks(Name, AlbumId, MediaTypeId, GenreId, Milliseconds, Bytes, UnitPrice) VALUES(?, ?, ?, ?, ?, ?, ?)")) {
+            stmt.setString(1, name);
+            stmt.setLong(2, albumId);
+            stmt.setLong(3, mediaTypeId);
+            stmt.setLong(4,genreId);
+            stmt.setLong(5, milliseconds);
+            stmt.setLong(6, bytes);
+            stmt.setBigDecimal(7, unitPrice);
+            return stmt.execute();
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    @Override
+    public boolean verify()
+    {
+        // expect a name and album
+        _errors.clear();
+        if(name == null || name.equals(""))
+            addError("No Title Found");
+        if(albumId == null)
+            addError("Track must belong to an Album.");
+        return !hasErrors();
+    }
+    
+    @Override
+    public boolean update()
+    {
+        try(Connection conn = DB.connect();
+            PreparedStatement stmt = conn.prepareStatement("UPDATE tracks SET Name=? WHERE TrackId=?"))
+        {
+            stmt.setString(1, name);
+            stmt.setLong(2, trackId);
+            stmt.execute();
+            return true;
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
 }
