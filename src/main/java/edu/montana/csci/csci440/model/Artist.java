@@ -126,7 +126,7 @@ public class Artist extends Model {
     
     public boolean verify()
     {
-        this._errors = new LinkedList<>();
+        _errors.clear();
         if(name == null || name.equals(""))
             addError("No Title Found");
         return !hasErrors();

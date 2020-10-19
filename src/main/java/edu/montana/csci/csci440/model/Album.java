@@ -141,7 +141,7 @@ public class Album extends Model {
     
     public boolean verify()
     {
-        this._errors = new LinkedList<>();
+        _errors.clear();
         if(title == null || title.equals(""))
             addError("No Title Found");
         if(artistId == null || artistId < 0)
