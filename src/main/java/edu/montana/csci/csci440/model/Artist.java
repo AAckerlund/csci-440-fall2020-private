@@ -29,7 +29,19 @@ public class Artist extends Model {
     }
 
     public Long getArtistId() {
-        return artistId;
+        try(Connection conn = DB.connect();
+            PreparedStatement stmt = conn.prepareStatement("SELECT * from artists WHERE Name=?"))
+        {
+            stmt.setString(1, name);
+            ResultSet results = stmt.executeQuery();
+            if(results.isClosed())
+                return null;
+            return results.getLong("ArtistId");
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
     }
 
     public void setArtist(Artist artist) {
@@ -80,5 +92,19 @@ public class Artist extends Model {
             throw new RuntimeException(sqlException);
         }
     }
-
+    
+    public boolean create()
+    {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO artists(Name) VALUES(?)")) {
+            stmt.setString(1, name);
+            boolean finished = stmt.execute();
+            artistId = getArtistId();
+            return finished;
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
 }
