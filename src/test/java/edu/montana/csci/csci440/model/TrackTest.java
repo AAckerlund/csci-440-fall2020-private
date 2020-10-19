@@ -64,7 +64,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void testArtistNameIsStoredOnTrack() {
+    void testArtistNameIsStoredOnTrack() {//TODO Don't forget me!!!!!!!!!!!!
         Track track = Track.find(1);
         long connectionCount = DB.getConnectionCount();
         String artistName = track.getArtistName();
@@ -73,7 +73,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void testAlbumNameIsStoredOnTrack() {
+    void testAlbumNameIsStoredOnTrack() {//TODO Don't forget me!!!!!!!!!!!!
         Track track = Track.find(1);
         long connectionCount = DB.getConnectionCount();
         String albumTitle = track.getAlbumTitle();
@@ -82,7 +82,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void testOrderByWorks() {
+    void testOrderByWorks() {//TODO Don't forget me!!!!!!!!!!!!
         Track track = Track.all(1, 1, "Milliseconds").get(0);
         assertEquals("É Uma Partida De Futebol", track.getName());
     }
@@ -94,7 +94,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void trackCountIsCachedInRedis(){
+    void trackCountIsCachedInRedis(){//TODO Don't forget me!!!!!!!!!!!!
 
         long initialCount = DB.getConnectionCount();
         Long count = Track.count();
