@@ -42,7 +42,18 @@ public class Customer extends Model {
     }
 
     public String getEmail() {
-        return email;
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM customers WHERE CustomerId=?")) {
+            stmt.setLong(1, customerId);
+            ResultSet results = stmt.executeQuery();
+            if (results.next()) {
+                return results.getString("email");
+            } else {
+                return null;
+            }
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     public Long getCustomerId() {

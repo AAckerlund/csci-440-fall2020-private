@@ -107,4 +107,28 @@ public class Artist extends Model {
             throw new RuntimeException(ex);
         }
     }
+    
+    public boolean update()
+    {
+        try(Connection conn = DB.connect();
+        PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name=? WHERE ArtistId=?"))
+        {
+            stmt.setString(1, name);
+            stmt.setLong(2, artistId);
+            stmt.execute();
+            return true;
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    public boolean verify()
+    {
+        this._errors = new LinkedList<>();
+        if(name == null || name.equals(""))
+            addError("No Title Found");
+        return !hasErrors();
+    }
 }
