@@ -103,7 +103,19 @@ public class Track extends Model {
     }
 
     public Long getTrackId() {
-        return trackId;
+        try(Connection conn = DB.connect();
+            PreparedStatement stmt = conn.prepareStatement("SELECT * from tracks WHERE Name=?"))
+        {
+            stmt.setString(1, name);
+            ResultSet results = stmt.executeQuery();
+            if(results.isClosed())
+                return null;
+            return results.getLong("TrackId");
+        }
+        catch(SQLException ex)
+        {
+            throw new RuntimeException(ex);
+        }
     }
 
     public void setTrackId(Long trackId) {
@@ -284,14 +296,10 @@ public class Track extends Model {
     public boolean create()
     {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("INSERT INTO Tracks(Name, AlbumId, MediaTypeId, GenreId, Milliseconds, Bytes, UnitPrice) VALUES(?, ?, ?, ?, ?, ?, ?)")) {
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO Tracks(Name, AlbumId, MediaTypeId, GenreId, Milliseconds, Bytes, UnitPrice) VALUES(?, ?, 1, 1, 1, 1, ?)")) {
             stmt.setString(1, name);
             stmt.setLong(2, albumId);
-            stmt.setLong(3, mediaTypeId);
-            stmt.setLong(4,genreId);
-            stmt.setLong(5, milliseconds);
-            stmt.setLong(6, bytes);
-            stmt.setBigDecimal(7, unitPrice);
+            stmt.setBigDecimal(3, BigDecimal.valueOf(1));
             return stmt.execute();
         }
         catch(SQLException ex)
