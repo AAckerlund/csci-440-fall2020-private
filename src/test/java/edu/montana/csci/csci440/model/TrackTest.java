@@ -82,7 +82,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void testOrderByWorks() {//TODO Don't forget me!!!!!!!!!!!!
+    void testOrderByWorks() {
         Track track = Track.all(1, 1, "Milliseconds").get(0);
         assertEquals("É Uma Partida De Futebol", track.getName());
     }
