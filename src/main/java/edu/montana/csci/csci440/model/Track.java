@@ -25,6 +25,8 @@ public class Track extends Model {
     private Long milliseconds;
     private Long bytes;
     private BigDecimal unitPrice;
+    private String artistName;
+    private String albumName;
 
     public static final String REDIS_CACHE_KEY = "cs440-tracks-count-cache";
 
@@ -41,6 +43,8 @@ public class Track extends Model {
         albumId = results.getLong("AlbumId");
         mediaTypeId = results.getLong("MediaTypeId");
         genreId = results.getLong("GenreId");
+        artistName = getAlbum().getArtist().getName();
+        albumName = getAlbum().title;
     }
 
     public static Track find(int i) {
@@ -185,15 +189,11 @@ public class Track extends Model {
     }
 
     public String getArtistName() {
-        // TODO implement more efficiently
-        //  hint: cache on this model object
-        return getAlbum().getArtist().getName();
+        return artistName;
     }
 
     public String getAlbumTitle() {
-        // TODO implement more efficiently
-        //  hint: cache on this model object
-        return getAlbum().getTitle();
+        return albumName;
     }
 
     public static List<Track> advancedSearch(int page, int count,

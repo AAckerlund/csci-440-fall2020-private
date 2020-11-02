@@ -64,7 +64,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void testArtistNameIsStoredOnTrack() {//TODO Don't forget me!!!!!!!!!!!!
+    void testArtistNameIsStoredOnTrack() {
         Track track = Track.find(1);
         long connectionCount = DB.getConnectionCount();
         String artistName = track.getArtistName();
@@ -73,7 +73,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void testAlbumNameIsStoredOnTrack() {//TODO Don't forget me!!!!!!!!!!!!
+    void testAlbumNameIsStoredOnTrack() {
         Track track = Track.find(1);
         long connectionCount = DB.getConnectionCount();
         String albumTitle = track.getAlbumTitle();
