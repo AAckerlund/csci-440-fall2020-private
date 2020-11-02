@@ -33,12 +33,12 @@ public class ArtistTest extends DBTest {
         assertNull(artist.getArtistId());
         artist.create();
         assertNotNull(artist.getArtistId());
-
+    
         assertEquals(artist.find(artist.getArtistId()), artist);
     }
 
     @Test
-    void testOptimisticConcurrencyIsImplemented() {//TODO Don't forget about me!!!!!!!!
+    void testOptimisticConcurrencyIsImplemented() {
         Artist acdc1 = Artist.find(1);
         Artist acdc2 = Artist.find(1);
         String newName = "DC/AC";

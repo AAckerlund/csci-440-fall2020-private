@@ -15,12 +15,15 @@ public class Artist extends Model {
 
     Long artistId;
     String name;
+    String originalName;
 
     public Artist() {
+        originalName = name;
     }
 
     private Artist(ResultSet results) throws SQLException {
         name = results.getString("Name");
+        originalName = name;
         artistId = results.getLong("ArtistId");
     }
 
@@ -53,6 +56,7 @@ public class Artist extends Model {
     }
 
     public void setName(String name) {
+        originalName = this.name;
         this.name = name;
     }
 
@@ -100,6 +104,7 @@ public class Artist extends Model {
             stmt.setString(1, name);
             boolean finished = stmt.execute();
             artistId = getArtistId();
+            originalName = name;
             return finished;
         }
         catch(SQLException ex)
@@ -110,18 +115,25 @@ public class Artist extends Model {
     
     public boolean update()
     {
-        try(Connection conn = DB.connect();
-        PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name=? WHERE ArtistId=?"))
+        if(verify())
         {
-            stmt.setString(1, name);
-            stmt.setLong(2, artistId);
-            stmt.execute();
-            return true;
+            try(Connection conn = DB.connect(); PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name=? WHERE ArtistId=? and Name=?"))
+            {
+                stmt.setString(1, name);
+                stmt.setLong(2, artistId);
+                stmt.setString(3, originalName);
+                int num = stmt.executeUpdate();
+                System.out.println(getName());
+                System.out.println(num);
+                return num > 0;
+            }
+            catch(SQLException ex)
+            {
+                throw new RuntimeException(ex);
+            }
         }
-        catch(SQLException ex)
-        {
-            throw new RuntimeException(ex);
-        }
+        else
+            return false;
     }
     
     public boolean verify()
