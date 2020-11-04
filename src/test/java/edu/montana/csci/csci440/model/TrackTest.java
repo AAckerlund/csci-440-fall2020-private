@@ -40,7 +40,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void testDeleteWorks() {//TODO Don't forget me!!!!!!!!!!!
+    void testDeleteWorks() {
         Track track = new Track();
 
         track.setName("Example");
