@@ -122,10 +122,7 @@ public class Artist extends Model {
                 stmt.setString(1, name);
                 stmt.setLong(2, artistId);
                 stmt.setString(3, originalName);
-                int num = stmt.executeUpdate();
-                System.out.println(getName());
-                System.out.println(num);
-                return num > 0;
+                return stmt.executeUpdate() > 0;
             }
             catch(SQLException ex)
             {
