@@ -73,7 +73,6 @@ public class Track extends Model {
         {
             long trackCount = Long.parseLong(count);
             return trackCount;
-            //TODO
         }
         else
         {

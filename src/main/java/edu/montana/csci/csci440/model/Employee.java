@@ -36,7 +36,7 @@ public class Employee extends Model {
     public static List<Employee.SalesSummary> getSalesSummaries() {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM invoices JOIN customers on customers.CustomerId=invoices.CustomerId JOIN employees on employees.EmployeeId=customers.SupportRepId")) {
+                     "SELECT invoices.CustomerId, employees.FirstName, employees.LastName, employees.Email, Count(invoices.Total) as SalesCount, round(sum(invoices.Total), 2) as SalesTotal from invoices JOIN customers on customers.CustomerId=invoices.CustomerId JOIN employees on employees.EmployeeId=customers.SupportRepId GROUP BY employees.Email")) {
             ResultSet results = stmt.executeQuery();
             List<Employee.SalesSummary> resultList = new LinkedList<>();
             while (results.next()) {
@@ -176,6 +176,7 @@ public class Employee extends Model {
             throw new RuntimeException(sqlException);
         }
     }
+    
     public Employee getBoss() {
         try(Connection conn = DB.connect();
         PreparedStatement stmt = conn.prepareStatement("SELECT boss.* FROM employees JOIN employees boss on employees.ReportsTo=boss.EmployeeId WHERE employees.employeeId=?"))

@@ -13,7 +13,6 @@ public class EmployeeHelper {
     public static String makeEmployeeTree() {
         List<Employee> employee = Employee.all(); // root employee
         // and use this data structure to maintain reference information needed to build the tree structure
-        
     
         for(Employee emp : employee)
         {
