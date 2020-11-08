@@ -1,6 +1,7 @@
 package edu.montana.csci.csci440.model;
 
 import edu.montana.csci.csci440.util.DB;
+import redis.clients.jedis.Jedis;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -70,6 +71,11 @@ public class Album extends Model {
     public Long getArtistId() {
         return artistId;
     }
+    
+    public void setArtistId(Long id)
+    {
+        artistId = id;
+    }
 
     public static List<Album> all() {
         return all(0, Integer.MAX_VALUE);
@@ -119,7 +125,7 @@ public class Album extends Model {
              PreparedStatement stmt = conn.prepareStatement("INSERT INTO albums(Title, ArtistId) VALUES(?, ?)")) {
         stmt.setString(1, title);
         stmt.setLong(2, artistId);
-        return stmt.execute();
+        return stmt.executeUpdate() > 0;
         }
         catch(SQLException ex)
         {
@@ -138,6 +144,19 @@ public class Album extends Model {
         catch(SQLException ex)
         {
             throw new RuntimeException(ex);
+        }
+    }
+    
+    @Override
+    public void delete()
+    {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM albums WHERE albumID=?")) {
+            stmt.setLong(1, this.getAlbumId());
+            stmt.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
         }
     }
     

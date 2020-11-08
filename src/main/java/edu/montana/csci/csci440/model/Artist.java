@@ -101,11 +101,11 @@ public class Artist extends Model {
     {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("INSERT INTO artists(Name) VALUES(?)")) {
-            stmt.setString(1, name);
-            boolean finished = stmt.execute();
+            stmt.setString(1, getName());
+            int linesUpdated = stmt.executeUpdate();
             artistId = getArtistId();
             originalName = name;
-            return finished;
+            return linesUpdated > 0;
         }
         catch(SQLException ex)
         {

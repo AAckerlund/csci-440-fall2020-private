@@ -46,7 +46,6 @@ public class Employee extends Model {
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
-        //TODO - a GROUP BY query to determine the sales (look at the invoices table), using the SalesSummary class
     }
 
     @Override
