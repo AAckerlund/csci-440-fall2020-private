@@ -38,6 +38,8 @@ public class Album extends Model {
     }
 
     public Long getAlbumId() {
+        if(albumId != null)
+            return albumId;
         try(Connection conn = DB.connect();
         PreparedStatement stmt = conn.prepareStatement("SELECT * from albums WHERE Title=?"))
         {

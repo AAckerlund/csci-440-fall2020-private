@@ -68,16 +68,33 @@ public class Track extends Model {
 
     public static Long count() {
         Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
-        try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks")) {
-            ResultSet results = stmt.executeQuery();
-            if (results.next()) {
-                return results.getLong("Count");
-            } else {
-                throw new IllegalStateException("Should find a count!");
+        String count = redisClient.get("cs440-tracks-count-cache");
+        if(count != null)
+        {
+            long trackCount = Long.parseLong(count);
+            return trackCount;
+            //TODO
+        }
+        else
+        {
+            try(Connection conn = DB.connect(); PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks"))
+            {
+                ResultSet results = stmt.executeQuery();
+                if(results.next())
+                {
+                    long trackCount = results.getLong("Count");
+                    redisClient.set("cs440-tracks-count-cache", String.valueOf(trackCount));
+                    return trackCount;
+                }
+                else
+                {
+                    throw new IllegalStateException("Should find a count!");
+                }
             }
-        } catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
+            catch(SQLException sqlException)
+            {
+                throw new RuntimeException(sqlException);
+            }
         }
     }
 
@@ -295,6 +312,8 @@ public class Track extends Model {
             stmt.setBigDecimal(3, BigDecimal.valueOf(1));
             stmt.execute();
             trackId = DB.getLastID(conn);
+            Jedis redisClient = new Jedis();
+            redisClient.del("cs440-tracks-count-cache");
             return true;
         }
         catch(SQLException ex)
@@ -340,6 +359,8 @@ public class Track extends Model {
                      "DELETE FROM tracks WHERE TrackID=?")) {
             stmt.setLong(1, this.getTrackId());
             stmt.executeUpdate();
+            Jedis redisClient = new Jedis();
+            redisClient.del("cs440-tracks-count-cache");
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }

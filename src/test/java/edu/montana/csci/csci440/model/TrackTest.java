@@ -109,7 +109,7 @@ public class TrackTest extends DBTest {
     }
 
     @Test
-    void trackCountIsCachedInRedis(){//TODO Don't forget me!!!!!!!!!!!!
+    void trackCountIsCachedInRedis(){
 
         long initialCount = DB.getConnectionCount();
         Long count = Track.count();
