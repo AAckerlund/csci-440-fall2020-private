@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 public class EmployeeHelper {
+    static Map<Long, List<Employee>> employeeMap = new HashMap<>();
+    
     public static String makeEmployeeTree() {
         List<Employee> employee = Employee.all(); // root employee
         // and use this data structure to maintain reference information needed to build the tree structure
-        Map<Long, List<Employee>> employeeMap = new HashMap<>();
+        
     
         for(Employee emp : employee)
         {
@@ -25,10 +27,10 @@ public class EmployeeHelper {
             employeeMap.put(reportsTo, existingEmps);
         }
         
-        return "<ul>" + makeTree(employee.get(0), employeeMap) + "</ul>";
+        return "<ul>" + makeTree(employee.get(0)) + "</ul>";
     }
 
-    public static String makeTree(Employee employee, Map<Long, List<Employee>> employeeMap) {
+    public static String makeTree(Employee employee) {
         String list = "<li><a href='/employees" + employee.getEmployeeId() + "'>" + employee.getEmail() + "</a><ul>";
         
         List<Employee> reports = employeeMap.get(employee.getEmployeeId());
@@ -37,7 +39,7 @@ public class EmployeeHelper {
         {
             for(Employee report : reports)
             {
-                list += makeTree(report, employeeMap);
+                list += makeTree(report);
             }
         }
         
