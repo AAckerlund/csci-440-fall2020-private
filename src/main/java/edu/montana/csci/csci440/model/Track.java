@@ -68,7 +68,7 @@ public class Track extends Model {
 
     public static Long count() {
         Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
-        String count = redisClient.get("cs440-tracks-count-cache");
+        String count = redisClient.get(REDIS_CACHE_KEY);
         if(count != null)
         {
             long trackCount = Long.parseLong(count);
@@ -82,7 +82,7 @@ public class Track extends Model {
                 if(results.next())
                 {
                     long trackCount = results.getLong("Count");
-                    redisClient.set("cs440-tracks-count-cache", String.valueOf(trackCount));
+                    redisClient.set(REDIS_CACHE_KEY, String.valueOf(trackCount));
                     return trackCount;
                 }
                 else
@@ -312,7 +312,7 @@ public class Track extends Model {
             stmt.execute();
             trackId = DB.getLastID(conn);
             Jedis redisClient = new Jedis();
-            redisClient.del("cs440-tracks-count-cache");
+            redisClient.del(REDIS_CACHE_KEY);
             return true;
         }
         catch(SQLException ex)
@@ -359,7 +359,7 @@ public class Track extends Model {
             stmt.setLong(1, this.getTrackId());
             stmt.executeUpdate();
             Jedis redisClient = new Jedis();
-            redisClient.del("cs440-tracks-count-cache");
+            redisClient.del(REDIS_CACHE_KEY);
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
