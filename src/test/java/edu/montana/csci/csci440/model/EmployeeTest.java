@@ -89,7 +89,7 @@ public class EmployeeTest extends DBTest {
     }
 
     @Test
-    void testEmployeeSalesReport() {//TODO Don't forget me!!!!!!!!
+    void testEmployeeSalesReport() {
         List<Employee.SalesSummary> salesSummaries = Employee.getSalesSummaries();
         assertEquals("jane@chinookcorp.com", salesSummaries.get(0).getEmail());
         assertEquals(146, salesSummaries.get(0).getSalesCount());
