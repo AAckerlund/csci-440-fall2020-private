@@ -81,7 +81,7 @@ public class EmployeeTest extends DBTest {
     }
 
     @Test
-    void testEmployeeHelperOnlyIssuesOneQuery(){//TODO Don't forget me!!!!!!
+    void testEmployeeHelperOnlyIssuesOneQuery(){
         long connectionCount = DB.getConnectionCount();
         String str = EmployeeHelper.makeEmployeeTree();
         assertNotNull(str);
