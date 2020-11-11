@@ -22,8 +22,8 @@
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m
 [[1;34mINFO[m] [1;31mBUILD FAILURE[m
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m
-[[1;34mINFO[m] Total time:  0.776 s
-[[1;34mINFO[m] Finished at: 2020-11-11T12:34:36-07:00
+[[1;34mINFO[m] Total time:  0.925 s
+[[1;34mINFO[m] Finished at: 2020-11-11T12:36:00-07:00
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m
 [[1;31mERROR[m] Failed to execute goal [32morg.apache.maven.plugins:maven-surefire-plugin:2.22.1:test[m [1m(default-test)[m on project [36mCSCI_440_Project[m: [1;31mNo tests were executed!  (Set -DfailIfNoTests=false to ignore this error.)[m -> [1m[Help 1][m
 [[1;31mERROR[m] 
